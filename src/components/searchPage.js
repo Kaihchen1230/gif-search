@@ -1,68 +1,155 @@
 import React from 'react';
 import axios from 'axios';
+import { Grid, Paper, createMuiTheme } from '@material-ui/core';
+import { withStyles } from '@material-ui/styles';
+import './style.css'
+import CircularSpinner from "./circular";
+import Search from './search';
+import DisplayGif from './displayGif';
 
-class searchPage extends React.Component{
+const styles = () => ({
+    
+    paper: {
+        margin: '0 20px',  
+        padding: '20px',
+        textAlign: 'center',
+        color: 'black'
+    },
+    image: {
+        width: '200px',
+        height: '200px',
+        padding: "20px"
+    }
+  });
+
+class SearchPage extends React.Component{
     
     constructor(props){
         super(props);
 
         this.state = {
-            trandingGif: [],
-            imageStatus: 'loading'
+            API: 'wZsiqXhZwdKm3L3xrEXppxgtrxwKm0cK',
+            keyword: '',
+            gifs: [],
+            loading: true,
+            loadingGifs: {},
+            imageStatus: 'loading',
+            topics: ['Animal', 'Holidays', 'Artists', 'Sports', 'Entertainment', 'Gaming', 'Food & Drink', 'Emotions', 'Reaction', 'Laugh', 'nah', '90s'],
+            copiedUrl: {}
         }
+        this.refList = {}
+        
     }
 
-    componentDidMount() {
-        const API = 'wZsiqXhZwdKm3L3xrEXppxgtrxwKm0cK';
+    async componentDidMount() {
+        
 
-        axios.get(`http://api.giphy.com/v1/gifs/trending?api_key=${API}&rating=g&limit=20`)
+        axios.get(`http://api.giphy.com/v1/gifs/trending?api_key=${this.state.API}&rating=g&limit=60`)
             .then(res => {
                 console.log(res.data.data)
-                const tranding = res.data.data;
-                this.setState({
-                    trandingGif: tranding
+                let gifs = res.data.data;
+                let copiedGifUrls = {}
+                gifs.map(gif => {
+                    const gifId = gif.id
+                    copiedGifUrls[gifId] = false
                 })
+                this.setState({
+                    gifs: gifs,
+                    copiedUrl: {...copiedGifUrls}
+                }, () => console.log('this is the state: ', this.state.gifs))
             })
     }
 
-    handleImageLoaded() {
-        this.setState({ imageStatus: 'loaded' });
-      }
+    componentDidUpdate(){
+        
+    }
+
+    creatRefList = () => {
+        let gifs = this.state.gifs
+        let loadingGifs = {}
+        gifs.map(gif => {
+            this.refList[gif.id] = React.createRef()
+            loadingGifs[gif.id] = true
+
+        })
+
+        this.setState({
+            loadingGifs: loadingGifs
+        })
+    }
+
     
-    handleImageErrored() {
-        this.setState({ imageStatus: "failed to load" });
-      }
+    
+
+
+    handleSearch = async (event) => {
+        event.preventDefault()
+
+        const searchKey = document.querySelector('#search-field').value
+        console.log('this is searchkey: ', searchKey)
+        axios.get(`http://api.giphy.com/v1/gifs/search?api_key=${this.state.API}&q=${searchKey}&rating=g&limit=60`)
+            .then(res => {
+                // console.log(res.data)
+                let gifs = res.data.data;
+                let copiedGifUrls = {}
+                
+                if(gifs.length){
+                    gifs.map(gif => {
+                        const gifId = gif.id
+                        copiedGifUrls[gifId] = false
+                    })
+                    this.setState({
+                        gifs: gifs,
+                        copiedUrl: {...copiedGifUrls}
+                    }, () => {console.log('this is the gif after search: ', this.state.gifs)
+                    this.creatRefList()
+                })
+                }else{
+                    this.setState({
+                        gifs: [],
+                        copiedGifUrls: {}
+                    })
+                    alert('there is no data')
+                }
+                
+            })
+    }
+
+    handleCopyLink = (id, e) => {
+        let currentCopiedGifUrls = this.state.copiedUrl
+        currentCopiedGifUrls[id] = true
+        this.setState({
+            copiedUrl: {...currentCopiedGifUrls}
+        })
+    }
+
+
 
     render(){
-        const info = this.state.trandingGif
-        
-        if (info.length){
-            console.log('this is info: ',info)
-            console.log('this is length: ', info.length)
-        }
+        const { classes } = this.props;
         return(
-            <div>
+            <div className={classes.root}>
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                
+                    <Search handleSearch={this.handleSearch}/>
+            </Grid>
+            <Grid item xs={12}>
+                
+            <DisplayGif 
+                gifsData={this.state.gifs}
+                handleCopiedUrl={this.handleCopyLink}
+                copiedGifUrls={this.state.copiedUrl}
+
+            />
+            </Grid>
             
-                {info.length? (
-                    <ul>
-                    {info.map((img, index)=>( 
-                            
-                        
-                            <li key={img.id}>
-                                <img src={img.images.original.url}
-                                    onLoad={this.handleImageLoaded.bind(this)}
-                                    onError={this.handleImageErrored.bind(this)}/>
-                                    {this.state.imageStatus}
-                            </li>
-                        
-                    ))}
-                </ul>
-            
-                ):null}
+        </Grid>
+        
+    </div>
                    
-            </div>
         )
     }
 }
 
-export default searchPage;
+export default withStyles(styles)(SearchPage);

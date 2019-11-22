@@ -20,3 +20,13 @@
 .App-link {
   color: #09d3ac;
 }
+
+a{
+  cursor: none;
+  text-decoration: none;
+  color: #3f51b5;
+}
+
+.tooltiptext:hover{
+  visibility: visible;
+}
