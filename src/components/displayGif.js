@@ -1,7 +1,6 @@
 import React from 'react';
-import {CardActionArea, Card, CardActions, CardContent, CardMedia, Button, Typography, Grid } from '@material-ui/core';
+import {CardActionArea, Card, CardActions, CardContent, CardMedia, Button, Typography, Grid, Tooltip } from '@material-ui/core';
 import {  withStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const styles = (theme) => ({
