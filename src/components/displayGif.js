@@ -1,15 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import InfoIcon from '@material-ui/icons/Info';
+import {CardActionArea, Card, CardActions, CardContent, CardMedia, Button, Typography, Grid } from '@material-ui/core';
 import {  withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -58,14 +48,7 @@ const displayGif = (props) => {
         <div className={classes.root}>
             <Grid container spacing={2} >
             {gifsData.map(gif => (
-                
-                // <Grid item xs={6} sm={4} key={gif.id}>
-                //   <Paper className={classes.paper}>
-                //       <img src={gif.images.original.url} alt={gif.title} />
-                //   </Paper>
-                // </Grid>
-
-                <Card className={classes.card}>
+                <Card className={classes.card} key={gif.id}>
                 <CardActionArea>
                   <CardMedia
                     className={classes.media}
@@ -73,11 +56,6 @@ const displayGif = (props) => {
                     title={gif.title}
                   />
                   <CardContent style={{width: "35vw", height:"100%"}}>
-                    
-                    {/* <Typography variant="body2" color="textSecondary" component="p">
-                      Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                      across all continents except Antarctica
-                    </Typography> */}
                   </CardContent>
                   <Typography gutterBottom variant="h5" component="h2" style={{maxWidth: "25vw", margin: "0 auto", fontSize: `${gif.title.length >= 25 ? "1.9em" : ''}`}}>
                       {gif.title ? gif.title : <br/>}

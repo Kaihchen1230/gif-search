@@ -80,7 +80,7 @@ const search = (props) =>  {
                                 <SearchIcon />
                             </div>
                         <InputBase
-                            placeholder="Search…"
+                            placeholder="Search Gifs"
                             id="search-field"
                             classes={{
                                 root: classes.inputRoot,

@@ -2,11 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import { Grid, Paper, createMuiTheme } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
-import './style.css'
-import CircularSpinner from "./circular";
-import Search from './search';
-import DisplayGif from './displayGif';
-
+import Search from './components/search';
+import DisplayGif from './components/displayGif';
+import './App.css'
 const styles = () => ({
     
     paper: {
@@ -32,9 +30,6 @@ class SearchPage extends React.Component{
             keyword: '',
             gifs: [],
             loading: true,
-            loadingGifs: {},
-            imageStatus: 'loading',
-            topics: ['Animal', 'Holidays', 'Artists', 'Sports', 'Entertainment', 'Gaming', 'Food & Drink', 'Emotions', 'Reaction', 'Laugh', 'nah', '90s'],
             copiedUrl: {}
         }
         this.refList = {}
@@ -43,8 +38,8 @@ class SearchPage extends React.Component{
 
     async componentDidMount() {
         
-
-        axios.get(`http://api.giphy.com/v1/gifs/trending?api_key=${this.state.API}&rating=g&limit=60`)
+        const api_key = process.env.REACT_APP_GIPHY_API_KEY
+        axios.get(`http://api.giphy.com/v1/gifs/trending?api_key=${api_key}&rating=g&limit=60`)
             .then(res => {
                 console.log(res.data.data)
                 let gifs = res.data.data;
@@ -58,36 +53,20 @@ class SearchPage extends React.Component{
                     copiedUrl: {...copiedGifUrls}
                 }, () => console.log('this is the state: ', this.state.gifs))
             })
+    }    
+
+    componentDidUpdate() {
+        const images = document.querySelectorAll('.MuiPaper-root')
+
+        console.log('this is images:', images)
     }
-
-    componentDidUpdate(){
-        
-    }
-
-    creatRefList = () => {
-        let gifs = this.state.gifs
-        let loadingGifs = {}
-        gifs.map(gif => {
-            this.refList[gif.id] = React.createRef()
-            loadingGifs[gif.id] = true
-
-        })
-
-        this.setState({
-            loadingGifs: loadingGifs
-        })
-    }
-
     
-    
-
-
     handleSearch = async (event) => {
         event.preventDefault()
-
+        const api_key = process.env.REACT_APP_GIPHY_API_KEY
         const searchKey = document.querySelector('#search-field').value
         console.log('this is searchkey: ', searchKey)
-        axios.get(`http://api.giphy.com/v1/gifs/search?api_key=${this.state.API}&q=${searchKey}&rating=g&limit=60`)
+        axios.get(`http://api.giphy.com/v1/gifs/search?api_key=${api_key}&q=${searchKey}&rating=g&limit=60`)
             .then(res => {
                 // console.log(res.data)
                 let gifs = res.data.data;
@@ -101,15 +80,13 @@ class SearchPage extends React.Component{
                     this.setState({
                         gifs: gifs,
                         copiedUrl: {...copiedGifUrls}
-                    }, () => {console.log('this is the gif after search: ', this.state.gifs)
-                    this.creatRefList()
-                })
+                    })
                 }else{
                     this.setState({
                         gifs: [],
                         copiedGifUrls: {}
-                    })
-                    alert('there is no data')
+                    }, () => alert(`There is no gifs related to keyword: ${searchKey}`))
+                    
                 }
                 
             })
@@ -129,25 +106,23 @@ class SearchPage extends React.Component{
         const { classes } = this.props;
         return(
             <div className={classes.root}>
-        <Grid container spacing={3}>
-            <Grid item xs={12}>
+                <div class="loader"></div>
                 
-                    <Search handleSearch={this.handleSearch}/>
-            </Grid>
-            <Grid item xs={12}>
-                
-            <DisplayGif 
-                gifsData={this.state.gifs}
-                handleCopiedUrl={this.handleCopyLink}
-                copiedGifUrls={this.state.copiedUrl}
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <Search handleSearch={this.handleSearch}/>
+                    </Grid>
 
-            />
-            </Grid>
-            
-        </Grid>
-        
-    </div>
-                   
+                    <Grid item xs={12}>
+                        
+                        <DisplayGif 
+                        gifsData={this.state.gifs}
+                        handleCopiedUrl={this.handleCopyLink}
+                        copiedGifUrls={this.state.copiedUrl}/>
+                    </Grid>
+                    
+                </Grid>
+            </div>
         )
     }
 }
